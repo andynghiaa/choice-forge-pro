@@ -6,6 +6,100 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Hedera SDK imports for Deno
+import {
+  Client,
+  AccountId,
+  PrivateKey,
+  TopicCreateTransaction,
+  TopicMessageSubmitTransaction,
+  TransactionId,
+} from "https://esm.sh/@hashgraph/sdk@2.51.0";
+
+async function submitToHedera(winnerData: {
+  roomId: string;
+  winnerId: string;
+  candidateId: string;
+  finalScore: number;
+  timestamp: string;
+}) {
+  const accountId = Deno.env.get('HEDERA_ACCOUNT_ID');
+  const privateKey = Deno.env.get('HEDERA_PRIVATE_KEY');
+
+  if (!accountId || !privateKey) {
+    console.log('Hedera credentials not configured, using simulation');
+    return {
+      transactionId: `simulated-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      status: 'simulated',
+      network: 'hedera_testnet'
+    };
+  }
+
+  try {
+    console.log('Connecting to Hedera testnet...');
+    
+    // Create client for Hedera testnet
+    const client = Client.forTestnet();
+    client.setOperator(AccountId.fromString(accountId), PrivateKey.fromString(privateKey));
+    
+    // Prepare the message to submit
+    const message = JSON.stringify({
+      type: 'VOTECHAIN_WINNER',
+      roomId: winnerData.roomId,
+      winnerId: winnerData.winnerId,
+      candidateId: winnerData.candidateId,
+      finalScore: winnerData.finalScore,
+      timestamp: winnerData.timestamp,
+      app: 'VoteChain'
+    });
+
+    console.log('Creating Hedera topic...');
+    
+    // Create a new topic for this room's result
+    const topicCreateTx = await new TopicCreateTransaction()
+      .setTopicMemo(`VoteChain Winner: Room ${winnerData.roomId.slice(0, 8)}`)
+      .execute(client);
+
+    const topicReceipt = await topicCreateTx.getReceipt(client);
+    const topicId = topicReceipt.topicId;
+    
+    console.log('Topic created:', topicId?.toString());
+
+    // Submit the winner data to the topic
+    const submitTx = await new TopicMessageSubmitTransaction()
+      .setTopicId(topicId!)
+      .setMessage(message)
+      .execute(client);
+
+    const submitReceipt = await submitTx.getReceipt(client);
+    
+    // Format transaction ID for HashScan compatibility
+    const txId = submitTx.transactionId;
+    const formattedTxId = `${txId?.accountId?.toString()}-${txId?.validStart?.seconds?.toString()}-${txId?.validStart?.nanos?.toString().padStart(9, '0')}`;
+
+    console.log('Transaction ID:', formattedTxId);
+    console.log('Receipt status:', submitReceipt.status.toString());
+
+    client.close();
+
+    return {
+      transactionId: formattedTxId,
+      status: submitReceipt.status.toString() === 'SUCCESS' ? 'confirmed' : 'pending',
+      network: 'hedera_testnet',
+      topicId: topicId?.toString()
+    };
+  } catch (error) {
+    console.error('Hedera transaction failed:', error);
+    // Fallback to simulation if Hedera fails
+    return {
+      transactionId: `failed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      status: 'failed',
+      network: 'hedera_testnet',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -279,16 +373,26 @@ IMPORTANT: Use the exact UUID provided for each candidate.`
       throw winnerError;
     }
 
-    // Create blockchain record (simulated for now)
-    const transactionId = `0.0.${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-    
+    // Submit to Hedera blockchain
+    console.log('Submitting to Hedera blockchain...');
+    const blockchainResult = await submitToHedera({
+      roomId: roomId,
+      winnerId: winner.id,
+      candidateId: winnerScore.candidate_id,
+      finalScore: winnerScore.score,
+      timestamp: new Date().toISOString()
+    });
+
+    console.log('Blockchain result:', blockchainResult);
+
+    // Create blockchain record
     await supabase
       .from('blockchain_records')
       .insert({
         winner_id: winner.id,
-        transaction_id: transactionId,
-        network: 'hedera_testnet',
-        status: 'confirmed',
+        transaction_id: blockchainResult.transactionId,
+        network: blockchainResult.network,
+        status: blockchainResult.status,
         block_timestamp: new Date().toISOString()
       });
 
@@ -308,7 +412,7 @@ IMPORTANT: Use the exact UUID provided for each candidate.`
           score: winnerScore.score,
           reasoning: winnerScore.reasoning
         },
-        transactionId 
+        blockchain: blockchainResult
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
