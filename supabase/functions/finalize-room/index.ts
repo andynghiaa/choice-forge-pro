@@ -36,11 +36,30 @@ async function submitToHedera(winnerData: {
   }
 
   try {
-    console.log('Connecting to Hedera testnet...');
+    console.log('Connecting to Hedera testnet with account:', accountId);
     
     // Create client for Hedera testnet
     const client = Client.forTestnet();
-    client.setOperator(AccountId.fromString(accountId), PrivateKey.fromString(privateKey));
+    
+    // Parse private key - handle both DER and raw formats
+    let parsedKey: PrivateKey;
+    try {
+      // Try DER format first (starts with 302e or 3030)
+      if (privateKey.startsWith('302')) {
+        console.log('Using DER format key');
+        parsedKey = PrivateKey.fromStringDer(privateKey);
+      } else {
+        console.log('Using standard format key');
+        parsedKey = PrivateKey.fromString(privateKey);
+      }
+    } catch (keyError) {
+      console.error('Key parsing error, trying alternative:', keyError);
+      // Fallback: try fromStringED25519 for ED25519 keys
+      parsedKey = PrivateKey.fromStringED25519(privateKey);
+    }
+    
+    client.setOperator(AccountId.fromString(accountId), parsedKey);
+    console.log('Client configured successfully');
     
     // Prepare the message to submit
     const message = JSON.stringify({
