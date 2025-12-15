@@ -73,6 +73,11 @@ export default function RoomDetail() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   
+  // Input length limits
+  const MAX_CANDIDATE_NAME_LENGTH = 200;
+  const MAX_CANDIDATE_DESC_LENGTH = 1000;
+  const MAX_EVALUATION_LENGTH = 2000;
+
   // New candidate form
   const [showAddCandidate, setShowAddCandidate] = useState(false);
   const [newCandidateName, setNewCandidateName] = useState('');
@@ -251,6 +256,16 @@ export default function RoomDetail() {
   const handleAddCandidate = async () => {
     if (!newCandidateName.trim() || !id) return;
 
+    // Input validation
+    if (newCandidateName.length > MAX_CANDIDATE_NAME_LENGTH) {
+      toast({ title: 'Error', description: `Candidate name must be ${MAX_CANDIDATE_NAME_LENGTH} characters or less`, variant: 'destructive' });
+      return;
+    }
+    if (newCandidateDesc && newCandidateDesc.length > MAX_CANDIDATE_DESC_LENGTH) {
+      toast({ title: 'Error', description: `Description must be ${MAX_CANDIDATE_DESC_LENGTH} characters or less`, variant: 'destructive' });
+      return;
+    }
+
     setAddingCandidate(true);
     try {
       const { error } = await supabase
@@ -301,6 +316,12 @@ export default function RoomDetail() {
 
   const handleSubmitEvaluation = async (candidateId: string) => {
     if (!user || !evaluationText.trim()) return;
+
+    // Input validation
+    if (evaluationText.length > MAX_EVALUATION_LENGTH) {
+      toast({ title: 'Error', description: `Evaluation must be ${MAX_EVALUATION_LENGTH} characters or less`, variant: 'destructive' });
+      return;
+    }
 
     setSubmittingEvaluation(true);
     try {
@@ -486,18 +507,20 @@ export default function RoomDetail() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <Label>Name</Label>
+                  <Label>Name <span className="text-xs text-muted-foreground">({newCandidateName.length}/{MAX_CANDIDATE_NAME_LENGTH})</span></Label>
                   <Input
                     placeholder="Candidate name"
                     value={newCandidateName}
                     onChange={(e) => setNewCandidateName(e.target.value)}
+                    maxLength={MAX_CANDIDATE_NAME_LENGTH}
                   />
                 </div>
                 <div>
-                  <Label>Description (optional)</Label>
+                  <Label>Description (optional) <span className="text-xs text-muted-foreground">({newCandidateDesc.length}/{MAX_CANDIDATE_DESC_LENGTH})</span></Label>
                   <Input
                     placeholder="Brief description"
                     value={newCandidateDesc}
+                    maxLength={MAX_CANDIDATE_DESC_LENGTH}
                     onChange={(e) => setNewCandidateDesc(e.target.value)}
                   />
                 </div>
