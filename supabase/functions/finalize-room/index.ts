@@ -64,12 +64,18 @@ serve(async (req) => {
       .select('candidate_id')
       .in('candidate_id', candidateIds);
 
-    // Prepare data for AI
-    const candidateData = candidates.map(candidate => {
+    // Create a mapping of index to candidate ID for reliable matching
+    const candidateMap = new Map<number, string>();
+    
+    // Prepare data for AI with numbered indices
+    const candidateData = candidates.map((candidate, index) => {
       const candidateEvals = evaluations?.filter(e => e.candidate_id === candidate.id) || [];
       const voteCount = votes?.filter(v => v.candidate_id === candidate.id).length || 0;
       
+      candidateMap.set(index + 1, candidate.id); // 1-indexed
+      
       return {
+        index: index + 1,
         id: candidate.id,
         name: candidate.name,
         description: candidate.description || 'No description',
@@ -80,33 +86,8 @@ serve(async (req) => {
 
     console.log('Prepared candidate data for AI');
 
-    // Call Lovable AI for scoring
-    const aiPrompt = `You are an impartial judge evaluating candidates for a voting competition.
-
-EVALUATION CRITERIA (defined by room owner):
-${room.evaluation_criteria}
-
-CANDIDATES TO EVALUATE:
-${candidateData.map(c => `
-Candidate: ${c.name}
-Description: ${c.description}
-Vote Count: ${c.voteCount}
-Community Evaluations:
-${c.evaluations.length > 0 ? c.evaluations.map((e, i) => `  ${i + 1}. ${e}`).join('\n') : '  No evaluations submitted'}
-`).join('\n---\n')}
-
-Based on the evaluation criteria and community feedback, score each candidate from 0 to 100.
-Consider:
-- How well they meet the stated criteria
-- The quality and sentiment of community evaluations
-- Vote count as a signal of community preference
-
-Respond with a JSON object containing scores and reasoning for each candidate.
-Format: {"scores": [{"candidate_id": "id", "score": number, "reasoning": "brief explanation"}]}
-
-Only output valid JSON, no additional text.`;
-
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Call Lovable AI for scoring - use tool calling for structured output
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${lovableApiKey}`,
@@ -115,58 +96,170 @@ Only output valid JSON, no additional text.`;
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: 'You are an impartial AI judge. Always respond with valid JSON only.' },
-          { role: 'user', content: aiPrompt }
+          { 
+            role: 'system', 
+            content: 'You are an impartial AI judge. Evaluate candidates and return scores using the provided function.' 
+          },
+          { 
+            role: 'user', 
+            content: `Evaluate these candidates for a voting competition.
+
+EVALUATION CRITERIA (defined by room owner):
+${room.evaluation_criteria}
+
+CANDIDATES TO EVALUATE:
+${candidateData.map(c => `
+[Candidate #${c.index}] ${c.name}
+- UUID: ${c.id}
+- Description: ${c.description}
+- Vote Count: ${c.voteCount}
+- Community Evaluations:
+${c.evaluations.length > 0 ? c.evaluations.map((e, i) => `  ${i + 1}. ${e}`).join('\n') : '  No evaluations submitted'}
+`).join('\n---\n')}
+
+Score each candidate from 0 to 100 based on:
+- How well they meet the stated criteria
+- The quality and sentiment of community evaluations
+- Vote count as a signal of community preference
+
+IMPORTANT: Use the exact UUID provided for each candidate.`
+          }
         ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "submit_scores",
+              description: "Submit the final scores for all candidates",
+              parameters: {
+                type: "object",
+                properties: {
+                  scores: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        candidate_id: { type: "string", description: "The exact UUID of the candidate" },
+                        score: { type: "integer", description: "Score from 0 to 100" },
+                        reasoning: { type: "string", description: "Brief explanation for the score" }
+                      },
+                      required: ["candidate_id", "score", "reasoning"]
+                    }
+                  }
+                },
+                required: ["scores"]
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "submit_scores" } }
       }),
     });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
+    if (!response.ok) {
+      const errorText = await response.text();
       console.error('AI API error:', errorText);
       throw new Error('AI evaluation failed');
     }
 
-    const aiData = await aiResponse.json();
-    const aiContent = aiData.choices?.[0]?.message?.content;
-    
-    console.log('AI response:', aiContent);
+    const aiData = await response.json();
+    console.log('AI response received');
 
-    // Parse AI response
-    let scores;
+    // Parse tool call response
+    let scores: { scores: Array<{ candidate_id: string; score: number; reasoning: string }> };
+    
     try {
-      // Extract JSON from response
-      const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON found in response');
-      scores = JSON.parse(jsonMatch[0]);
+      const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+      if (toolCall && toolCall.function?.arguments) {
+        scores = JSON.parse(toolCall.function.arguments);
+      } else {
+        // Fallback: try to parse from content
+        const content = aiData.choices?.[0]?.message?.content;
+        if (content) {
+          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            scores = JSON.parse(jsonMatch[0]);
+          } else {
+            throw new Error('No valid JSON in response');
+          }
+        } else {
+          throw new Error('No tool call or content in response');
+        }
+      }
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
-      // Fallback: assign scores based on vote count
+      // Fallback: assign scores based on vote count with actual UUIDs
       scores = {
         scores: candidateData.map(c => ({
           candidate_id: c.id,
-          score: Math.min(100, c.voteCount * 10 + 50),
+          score: Math.min(100, c.voteCount * 15 + 50),
           reasoning: 'Score based on vote count (AI parsing failed)'
         }))
       };
     }
 
-    console.log('Parsed scores:', scores);
+    // Validate and fix candidate IDs - ensure they are valid UUIDs
+    const validatedScores = scores.scores.map(scoreData => {
+      // Check if the candidate_id is a valid UUID from our candidates
+      const isValidUUID = candidateIds.includes(scoreData.candidate_id);
+      
+      if (!isValidUUID) {
+        // Try to find the candidate by name match
+        const matchedCandidate = candidates.find(c => 
+          c.name.toLowerCase() === scoreData.candidate_id.toLowerCase() ||
+          scoreData.candidate_id.includes(c.name) ||
+          c.name.includes(scoreData.candidate_id)
+        );
+        
+        if (matchedCandidate) {
+          console.log(`Mapped "${scoreData.candidate_id}" to UUID: ${matchedCandidate.id}`);
+          return { ...scoreData, candidate_id: matchedCandidate.id };
+        }
+        
+        // Last resort: use index if available
+        console.warn(`Could not map candidate_id: ${scoreData.candidate_id}`);
+        return null;
+      }
+      
+      return scoreData;
+    }).filter(Boolean) as Array<{ candidate_id: string; score: number; reasoning: string }>;
+
+    // If we couldn't map any scores, create fallback
+    if (validatedScores.length === 0) {
+      console.log('No valid scores from AI, using fallback');
+      for (const candidate of candidateData) {
+        validatedScores.push({
+          candidate_id: candidate.id,
+          score: Math.min(100, candidate.voteCount * 15 + 50),
+          reasoning: 'Fallback score based on vote count'
+        });
+      }
+    }
+
+    console.log('Validated scores:', validatedScores);
 
     // Insert AI scores
-    for (const scoreData of scores.scores) {
-      await supabase
+    for (const scoreData of validatedScores) {
+      const { error: scoreError } = await supabase
         .from('ai_scores')
         .insert({
           candidate_id: scoreData.candidate_id,
           score: scoreData.score,
           reasoning: scoreData.reasoning
         });
+      
+      if (scoreError) {
+        console.error('Error inserting score:', scoreError);
+      }
     }
 
     // Determine winner (highest score)
-    const sortedScores = [...scores.scores].sort((a, b) => b.score - a.score);
+    const sortedScores = [...validatedScores].sort((a, b) => b.score - a.score);
     const winnerScore = sortedScores[0];
+
+    if (!winnerScore) {
+      throw new Error('No valid scores to determine winner');
+    }
 
     console.log('Winner:', winnerScore);
 
