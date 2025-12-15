@@ -23,7 +23,8 @@ import {
   Shield,
   Trophy,
   X,
-  ThumbsUp
+  ThumbsUp,
+  ExternalLink
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -431,12 +432,21 @@ export default function RoomDetail() {
                 </div>
               </div>
               {winner.blockchain_record && (
-                <div className="mt-4 pt-4 border-t border-border/50 flex items-center gap-2 text-sm">
+                <div className="mt-4 pt-4 border-t border-border/50 flex flex-wrap items-center gap-2 text-sm">
                   <Shield className="w-4 h-4 text-emerald-500" />
                   <span className="text-muted-foreground">Blockchain verified:</span>
                   <code className="text-xs bg-secondary px-2 py-1 rounded">
-                    {winner.blockchain_record.transaction_id.slice(0, 20)}...
+                    {winner.blockchain_record.transaction_id.slice(0, 24)}...
                   </code>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => window.open(`https://hashscan.io/testnet/transaction/${winner.blockchain_record?.transaction_id}`, '_blank')}
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    View on HashScan
+                  </Button>
                 </div>
               )}
             </CardContent>
