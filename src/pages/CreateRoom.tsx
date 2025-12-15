@@ -23,6 +23,11 @@ export default function CreateRoom() {
   const [deadline, setDeadline] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Input length limits
+  const MAX_NAME_LENGTH = 200;
+  const MAX_DESCRIPTION_LENGTH = 2000;
+  const MAX_CRITERIA_LENGTH = 5000;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -33,6 +38,20 @@ export default function CreateRoom() {
 
     if (!name || !criteria || !deadline) {
       toast({ title: 'Error', description: 'Please fill in all required fields', variant: 'destructive' });
+      return;
+    }
+
+    // Input validation
+    if (name.length > MAX_NAME_LENGTH) {
+      toast({ title: 'Error', description: `Room name must be ${MAX_NAME_LENGTH} characters or less`, variant: 'destructive' });
+      return;
+    }
+    if (description && description.length > MAX_DESCRIPTION_LENGTH) {
+      toast({ title: 'Error', description: `Description must be ${MAX_DESCRIPTION_LENGTH} characters or less`, variant: 'destructive' });
+      return;
+    }
+    if (criteria.length > MAX_CRITERIA_LENGTH) {
+      toast({ title: 'Error', description: `Evaluation criteria must be ${MAX_CRITERIA_LENGTH} characters or less`, variant: 'destructive' });
       return;
     }
 
@@ -96,23 +115,25 @@ export default function CreateRoom() {
               <div className="space-y-2">
                 <Label htmlFor="name" className="flex items-center gap-2">
                   <FileText className="w-4 h-4" />
-                  Room Name *
+                  Room Name * <span className="text-xs text-muted-foreground">({name.length}/{MAX_NAME_LENGTH})</span>
                 </Label>
                 <Input
                   id="name"
                   placeholder="e.g., Best Product Design 2024"
                   value={name}
+                  maxLength={MAX_NAME_LENGTH}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description (optional)</Label>
+                <Label htmlFor="description">Description (optional) <span className="text-xs text-muted-foreground">({description.length}/{MAX_DESCRIPTION_LENGTH})</span></Label>
                 <Textarea
                   id="description"
                   placeholder="Describe what this voting room is about..."
                   value={description}
+                  maxLength={MAX_DESCRIPTION_LENGTH}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                 />
@@ -121,12 +142,13 @@ export default function CreateRoom() {
               <div className="space-y-2">
                 <Label htmlFor="criteria" className="flex items-center gap-2">
                   <Target className="w-4 h-4" />
-                  Evaluation Criteria *
+                  Evaluation Criteria * <span className="text-xs text-muted-foreground">({criteria.length}/{MAX_CRITERIA_LENGTH})</span>
                 </Label>
                 <Textarea
                   id="criteria"
                   placeholder="Describe how candidates should be evaluated. The AI will use this to score each candidate.&#10;&#10;Example: Evaluate based on creativity, feasibility, impact on users, and technical innovation."
                   value={criteria}
+                  maxLength={MAX_CRITERIA_LENGTH}
                   onChange={(e) => setCriteria(e.target.value)}
                   rows={4}
                   required
