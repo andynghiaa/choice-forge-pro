@@ -1,1 +1,4 @@
 project_id = "nmfmtucxthpfzrgsvyhq"
+
+[functions.finalize-room]
+verify_jwt = true

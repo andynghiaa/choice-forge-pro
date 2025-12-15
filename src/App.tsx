@@ -7,6 +7,10 @@ import { AuthProvider } from "@/lib/auth";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import CreateRoom from "./pages/CreateRoom";
+import RoomDetail from "./pages/RoomDetail";
+import Leaderboard from "./pages/Leaderboard";
+import JoinRoom from "./pages/JoinRoom";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +26,10 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/room/new" element={<CreateRoom />} />
+            <Route path="/room/:id" element={<RoomDetail />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/join/:code" element={<JoinRoom />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
