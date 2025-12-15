@@ -125,17 +125,42 @@ serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
+
+    // Verify authentication
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create client to verify user
+    const supabaseAuth = createClient(supabaseUrl, supabaseServiceKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(token);
+    
+    if (userError || !user) {
+      console.error('Auth error:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { roomId } = await req.json();
     
     if (!roomId) {
       throw new Error('Room ID is required');
     }
 
-    console.log('Finalizing room:', roomId);
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
+    console.log('Finalizing room:', roomId, 'by user:', user.id);
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -148,6 +173,15 @@ serve(async (req) => {
 
     if (roomError || !room) {
       throw new Error('Room not found');
+    }
+
+    // Verify room ownership
+    if (room.owner_id !== user.id) {
+      console.log('Unauthorized: user', user.id, 'is not owner of room', roomId);
+      return new Response(
+        JSON.stringify({ error: 'Only room owner can finalize' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Room found:', room.name);
