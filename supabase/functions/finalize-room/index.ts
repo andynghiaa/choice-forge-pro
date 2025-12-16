@@ -63,20 +63,20 @@ async function submitToHedera(winnerData: {
     
     // Prepare the message to submit
     const message = JSON.stringify({
-      type: 'VOTECHAIN_WINNER',
+      type: 'CHAIN2VOTE_WINNER',
       roomId: winnerData.roomId,
       winnerId: winnerData.winnerId,
       candidateId: winnerData.candidateId,
       finalScore: winnerData.finalScore,
       timestamp: winnerData.timestamp,
-      app: 'VoteChain'
+      app: 'Chain2Vote'
     });
 
     console.log('Creating Hedera topic...');
     
     // Create a new topic for this room's result
     const topicCreateTx = await new TopicCreateTransaction()
-      .setTopicMemo(`VoteChain Winner: Room ${winnerData.roomId.slice(0, 8)}`)
+      .setTopicMemo(`Chain2Vote Winner: Room ${winnerData.roomId.slice(0, 8)}`)
       .execute(client);
 
     const topicReceipt = await topicCreateTx.getReceipt(client);

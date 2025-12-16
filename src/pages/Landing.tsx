@@ -201,14 +201,14 @@ export default function Landing() {
         <div className="container mx-auto px-4 relative">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <AnimatedSection direction="left">
-              <Badge variant="outline" className="mb-6 px-4 py-2">Why VoteChain?</Badge>
+              <Badge variant="outline" className="mb-6 px-4 py-2">Why Chain2Vote?</Badge>
               <h2 className="text-4xl md:text-5xl font-display font-bold mb-8 leading-tight">
                 Fair, Transparent, and{' '}
                 <span className="gradient-text">Unstoppable</span>
               </h2>
               <p className="text-muted-foreground text-lg mb-10 leading-relaxed">
-                Traditional voting systems are opaque and easily manipulated. VoteChain 
-                combines AI fairness with blockchain immutability to create the most 
+                Traditional voting systems are opaque and easily manipulated. Chain2Vote 
+                combines AI fairness with blockchain immutability to create the most
                 trustworthy voting platform ever built.
               </p>
 
@@ -303,7 +303,7 @@ export default function Landing() {
               Built for <span className="gradient-text">Everyone</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              From team decisions to community contests, VoteChain handles it all
+              From team decisions to community contests, Chain2Vote handles it all
             </p>
           </AnimatedSection>
 
@@ -396,15 +396,15 @@ export default function Landing() {
       {/* Footer */}
       <footer className="border-t border-border/50 py-12 relative">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col items-center gap-6 text-center">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                 <Vote className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-display font-semibold">VoteChain</span>
+              <span className="font-display font-semibold">Chain2Vote</span>
             </div>
             <p className="text-muted-foreground text-sm">
-              © 2024 VoteChain. AI-Powered Voting with Blockchain Verification.
+              © 2024 Chain2Vote. AI-Powered Voting with Blockchain Verification.
             </p>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <Link to="#" className="hover:text-foreground transition-colors">Privacy</Link>
