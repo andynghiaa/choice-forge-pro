@@ -20,21 +20,21 @@ export function Navbar() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
-      {/* Glass effect background */}
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-2xl border-b border-border/30" />
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
+    <nav className="fixed top-4 left-4 right-4 z-50">
+      {/* Floating glass effect background */}
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-2xl rounded-[32px] border border-border/30 shadow-xl" />
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 rounded-[32px]" />
       
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between relative">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-between relative">
         <Link to="/" className="flex items-center gap-2 group" onClick={closeMobileMenu}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-accent to-primary flex items-center justify-center shadow-lg group-hover:shadow-glow transition-all duration-300 group-hover:scale-105">
             <Vote className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">VoteChain</span>
+          <span className="font-display font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Chain2Vote</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6">
+        {/* Desktop Navigation - Centered */}
+        <div className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
           <Link to="/leaderboard" className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 hover:text-primary">
             <Trophy className="w-4 h-4" />
             Leaderboard
@@ -90,7 +90,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       <div className={cn(
-        "md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-2xl border-b border-border/30 overflow-hidden transition-all duration-300",
+        "md:hidden absolute top-full left-0 right-0 mt-2 mx-2 bg-background/95 backdrop-blur-2xl rounded-2xl border border-border/30 overflow-hidden transition-all duration-300",
         mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
       )}>
         <div className="container mx-auto px-4 py-4 space-y-3">

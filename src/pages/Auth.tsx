@@ -74,7 +74,7 @@ export default function Auth() {
         } else {
           toast({
             title: 'Account created!',
-            description: 'Welcome to VoteChain. Redirecting to dashboard...',
+            description: 'Welcome to Chain2Vote. Redirecting to dashboard...',
           });
         }
       } else {
@@ -107,7 +107,7 @@ export default function Auth() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Vote className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-display font-bold">VoteChain</h1>
+          <h1 className="text-2xl font-display font-bold">Chain2Vote</h1>
         </div>
 
         <Card variant="glass" className="animate-scale-in">
