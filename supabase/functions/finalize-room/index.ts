@@ -138,13 +138,11 @@ serve(async (req) => {
       );
     }
 
-    // Create client to verify user
-    const supabaseAuth = createClient(supabaseUrl, supabaseServiceKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
+    // Create admin client with service role key to verify user token
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(token);
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
     
     if (userError || !user) {
       console.error('Auth error:', userError);
