@@ -63,13 +63,15 @@ export default function Landing() {
             </motion.div>
             
             <motion.h1 
-              className="text-5xl md:text-7xl lg:text-8xl font-display font-bold mb-8 leading-[1.1] tracking-tight"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-8 leading-[1.1] tracking-tight"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               The Future of{' '}
-              <span className="gradient-text">Fair Voting</span>
+              <span className="gradient-text">Transparent</span>
+              <br className="hidden sm:block" />
+              {' '}and <span className="gradient-text">Fair Voting</span>
             </motion.h1>
             
             <motion.p 
