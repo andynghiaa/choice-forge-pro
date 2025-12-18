@@ -589,18 +589,19 @@ export default function RoomDetail() {
                               tabIndex={0}
                               onClick={() => setSelectedAiCandidate(candidate)}
                               onKeyDown={(e) => e.key === 'Enter' && setSelectedAiCandidate(candidate)}
-                              className="relative text-right px-4 py-3 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 hover:from-primary/30 hover:via-primary/20 hover:to-accent/30 transition-all duration-300 cursor-pointer group border border-primary/30 hover:border-primary/50 shadow-lg shadow-primary/10 hover:shadow-primary/25 hover:shadow-xl overflow-hidden"
+                              className="relative flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 hover:from-primary/30 hover:via-primary/20 hover:to-accent/30 transition-all duration-300 cursor-pointer group border border-primary/30 hover:border-primary/50 shadow-lg shadow-primary/10 hover:shadow-primary/25 hover:shadow-xl overflow-hidden min-w-[60px]"
                             >
                               {/* Animated glow effect */}
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                               <div className="relative">
-                                <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform duration-300">
+                                <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform duration-300 text-center">
                                   {candidate.ai_score}
                                 </div>
                               </div>
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent className="bg-background/80 backdrop-blur-xl border border-border/50">
+                          <TooltipContent className="bg-background/80 backdrop-blur-xl border border-border/50 flex items-center gap-1.5">
+                            <Brain className="w-3.5 h-3.5" />
                             Click to see AI reasoning
                           </TooltipContent>
                         </Tooltip>
@@ -715,7 +716,7 @@ export default function RoomDetail() {
                   <Sparkles className="w-4 h-4 text-primary" />
                   AI Reasoning
                 </h4>
-                <div className="bg-black/40 rounded-lg p-4 text-sm leading-relaxed text-foreground">
+                <div className="bg-muted dark:bg-black/40 rounded-lg p-4 text-sm leading-relaxed text-foreground">
                   {selectedAiCandidate?.ai_reasoning || 'No detailed reasoning available for this evaluation.'}
                 </div>
               </div>
