@@ -4,30 +4,7 @@ import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-// Hook to calculate scrollbar width and prevent layout shift
-const useScrollbarWidth = (isOpen: boolean) => {
-  React.useEffect(() => {
-    if (isOpen) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.paddingRight = '';
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.paddingRight = '';
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-};
-
-interface DialogProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root> {}
-
-const Dialog = ({ open, onOpenChange, ...props }: DialogProps) => {
-  useScrollbarWidth(open ?? false);
-  return <DialogPrimitive.Root open={open} onOpenChange={onOpenChange} {...props} />;
-};
+const Dialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
