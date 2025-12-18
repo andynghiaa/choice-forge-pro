@@ -24,8 +24,16 @@ import {
   Trophy,
   X,
   ThumbsUp,
-  ExternalLink
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from 'date-fns';
 
 interface Room {
@@ -47,6 +55,7 @@ interface Candidate {
   user_voted: boolean;
   user_evaluation: string | null;
   ai_score?: number;
+  ai_reasoning?: string | null;
 }
 
 interface Winner {
@@ -88,6 +97,9 @@ export default function RoomDetail() {
   const [evaluatingCandidate, setEvaluatingCandidate] = useState<string | null>(null);
   const [evaluationText, setEvaluationText] = useState('');
   const [submittingEvaluation, setSubmittingEvaluation] = useState(false);
+
+  // AI Score modal
+  const [selectedAiCandidate, setSelectedAiCandidate] = useState<Candidate | null>(null);
 
   const isOwner = user?.id === room?.owner_id;
   const isExpired = room ? new Date(room.voting_deadline) < new Date() : false;
@@ -226,7 +238,7 @@ export default function RoomDetail() {
 
         const { data: scoreData } = await supabase
           .from('ai_scores')
-          .select('score')
+          .select('score, reasoning')
           .eq('candidate_id', candidate.id)
           .maybeSingle();
         aiScore = scoreData?.score;
@@ -236,7 +248,8 @@ export default function RoomDetail() {
           vote_count: voteCount || 0,
           user_voted: userVoted,
           user_evaluation: userEvaluation,
-          ai_score: aiScore
+          ai_score: aiScore,
+          ai_reasoning: scoreData?.reasoning || null
         };
       })
     );
@@ -453,16 +466,16 @@ export default function RoomDetail() {
                 </div>
               </div>
               {winner.blockchain_record && (
-                <div className="mt-4 pt-4 border-t border-border/50 flex flex-wrap items-center gap-2 text-sm">
-                  <Shield className="w-4 h-4 text-emerald-500" />
-                  <span className="text-muted-foreground">Blockchain verified:</span>
-                  <code className="text-xs bg-secondary px-2 py-1 rounded">
-                    {winner.blockchain_record.transaction_id.slice(0, 24)}...
+                <div className="mt-4 pt-4 border-t border-border/50 flex flex-wrap items-center gap-3 text-sm">
+                  <Shield className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span className="text-muted-foreground flex-shrink-0">Blockchain verified:</span>
+                  <code className="text-xs bg-secondary px-2 py-1 rounded break-all">
+                    {winner.blockchain_record.transaction_id}
                   </code>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-7 text-xs gap-1"
+                    className="h-7 text-xs gap-1 flex-shrink-0"
                     onClick={() => window.open(`https://hashscan.io/testnet/transaction/${winner.blockchain_record?.transaction_id}`, '_blank')}
                   >
                     <ExternalLink className="w-3 h-3" />
@@ -560,10 +573,16 @@ export default function RoomDetail() {
                       )}
                     </div>
                     {candidate.ai_score !== undefined && (
-                      <div className="text-right">
-                        <div className="text-2xl font-display font-bold text-primary">{candidate.ai_score}</div>
-                        <p className="text-xs text-muted-foreground">AI Score</p>
-                      </div>
+                      <button
+                        onClick={() => setSelectedAiCandidate(candidate)}
+                        className="text-right p-2 -m-2 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer group"
+                      >
+                        <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform">{candidate.ai_score}</div>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
+                          <Sparkles className="w-3 h-3" />
+                          AI Score
+                        </p>
+                      </button>
                     )}
                   </div>
                 </CardHeader>
@@ -643,6 +662,40 @@ export default function RoomDetail() {
             ))}
           </div>
         )}
+
+        {/* AI Score Modal */}
+        <Dialog open={!!selectedAiCandidate} onOpenChange={() => setSelectedAiCandidate(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5 text-primary" />
+                AI Evaluation for {selectedAiCandidate?.name}
+              </DialogTitle>
+              <DialogDescription>
+                AI-generated score and reasoning based on evaluation criteria
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex items-center justify-center p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl">
+                <div className="text-center">
+                  <div className="text-5xl font-display font-bold text-primary mb-1">
+                    {selectedAiCandidate?.ai_score}
+                  </div>
+                  <p className="text-sm text-muted-foreground">out of 100</p>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  AI Reasoning
+                </h4>
+                <div className="bg-muted/50 rounded-lg p-4 text-sm leading-relaxed">
+                  {selectedAiCandidate?.ai_reasoning || 'No detailed reasoning available for this evaluation.'}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
