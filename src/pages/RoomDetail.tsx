@@ -589,16 +589,20 @@ export default function RoomDetail() {
                               tabIndex={0}
                               onClick={() => setSelectedAiCandidate(candidate)}
                               onKeyDown={(e) => e.key === 'Enter' && setSelectedAiCandidate(candidate)}
-                              className="text-right px-3 py-2 rounded-lg bg-primary/5 hover:bg-primary/15 transition-all cursor-pointer group border border-primary/20 hover:border-primary/40 relative z-10"
+                              className="relative text-right px-4 py-3 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 hover:from-primary/30 hover:via-primary/20 hover:to-accent/30 transition-all duration-300 cursor-pointer group border border-primary/30 hover:border-primary/50 shadow-lg shadow-primary/10 hover:shadow-primary/25 hover:shadow-xl overflow-hidden"
                             >
-                              <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform">
-                                {candidate.ai_score}
-                                <span className="text-xs align-top ml-0.5">pts</span>
+                              {/* Animated glow effect */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                              <div className="relative">
+                                <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform duration-300">
+                                  {candidate.ai_score}
+                                  <span className="text-xs align-top ml-0.5 opacity-70">pts</span>
+                                </div>
                               </div>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent className="bg-background/80 backdrop-blur-xl border border-border/50">
-                            Hover to view AI reason
+                            Click to see the magic ✨
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
