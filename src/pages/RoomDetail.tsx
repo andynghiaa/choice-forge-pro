@@ -34,6 +34,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { format } from 'date-fns';
 
 interface Room {
@@ -461,8 +467,10 @@ export default function RoomDetail() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl font-display font-bold text-primary">{winner.final_score}</div>
-                  <p className="text-sm text-muted-foreground">AI Score</p>
+                  <div className="text-4xl font-display font-bold text-primary">
+                    {winner.final_score}
+                    <span className="text-lg align-top ml-0.5">pts</span>
+                  </div>
                 </div>
               </div>
               {winner.blockchain_record && (
@@ -573,19 +581,31 @@ export default function RoomDetail() {
                       )}
                     </div>
                     {candidate.ai_score !== undefined && (
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => setSelectedAiCandidate(candidate)}
-                        onKeyDown={(e) => e.key === 'Enter' && setSelectedAiCandidate(candidate)}
-                        className="text-right px-3 py-2 rounded-lg bg-primary/5 hover:bg-primary/15 transition-all cursor-pointer group border border-primary/20 hover:border-primary/40 relative z-10"
-                      >
-                        <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform">{candidate.ai_score}</div>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-                          <Sparkles className="w-3 h-3" />
-                          AI Score
-                        </p>
-                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => setSelectedAiCandidate(candidate)}
+                              onKeyDown={(e) => e.key === 'Enter' && setSelectedAiCandidate(candidate)}
+                              className="text-right px-3 py-2 rounded-lg bg-primary/5 hover:bg-primary/15 transition-all cursor-pointer group border border-primary/20 hover:border-primary/40 relative z-10"
+                            >
+                              <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform">
+                                {candidate.ai_score}
+                                <span className="text-xs align-top ml-0.5">pts</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
+                                <Sparkles className="w-3 h-3" />
+                                View Reason
+                              </p>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-background/80 backdrop-blur-xl border border-border/50">
+                            Hover to view AI reason
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
                   </div>
                 </CardHeader>
