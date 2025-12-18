@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-md",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg active:shadow-md",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md hover:shadow-lg",
         outline:
@@ -18,10 +18,10 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm hover:shadow-md",
         ghost: "hover:bg-secondary/80 hover:text-secondary-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "relative overflow-hidden bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground font-semibold shadow-lg hover:shadow-glow-intense hover:-translate-y-1 active:translate-y-0 bg-[length:200%_100%] hover:bg-right transition-all duration-500 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700",
+        hero: "relative overflow-hidden bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground font-semibold shadow-lg hover:shadow-glow-intense bg-[length:200%_100%] hover:bg-right transition-all duration-500 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700",
         glass: "bg-card/60 backdrop-blur-xl border border-border/50 text-foreground hover:bg-card/80 hover:border-primary/40 hover:shadow-lg shadow-sm",
         glow: "bg-primary text-primary-foreground shadow-lg animate-pulse-glow hover:shadow-glow-intense",
-        premium: "bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold shadow-xl hover:shadow-glow-intense hover:-translate-y-1 active:translate-y-0 transition-all duration-300",
+        premium: "bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold shadow-xl hover:shadow-glow-intense transition-all duration-300",
       },
       size: {
         default: "h-11 px-5 py-2.5",
