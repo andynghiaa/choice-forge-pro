@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Layout } from '@/components/layout/Layout';
 import { AnimatedSection, AnimatedItem } from '@/components/AnimatedSection';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { 
   Vote, 
   Brain, 
@@ -41,38 +42,11 @@ const itemVariants = {
 export default function Landing() {
   return (
     <Layout>
-      {/* Noise overlay for texture */}
-      <div className="noise-overlay" />
+      {/* Fullpage animated background */}
+      <AnimatedBackground />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-screen flex items-center pt-20">
-        {/* Animated mesh background */}
-        <div className="absolute inset-0 mesh-gradient" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
-        
-        {/* Animated floating orbs */}
-        <motion.div 
-          className="absolute top-20 left-[5%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-primary/15 to-accent/10 blur-[120px] animate-morph"
-          animate={{ 
-            x: [0, 60, 0],
-            y: [0, 40, 0],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div 
-          className="absolute bottom-10 right-[5%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-accent/15 to-primary/10 blur-[120px] animate-morph"
-          style={{ animationDelay: '-4s' }}
-          animate={{ 
-            x: [0, -50, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        />
-        <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-gradient-radial from-primary/8 to-transparent blur-[80px]"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
         
         <div className="container mx-auto px-4 py-20 md:py-28 relative">
           <motion.div 
@@ -176,10 +150,9 @@ export default function Landing() {
 
       {/* Features Section */}
       <section className="py-28 md:py-36 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-secondary/40 via-secondary/20 to-transparent" />
-        <div className="absolute inset-0 mesh-gradient opacity-40" />
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
         
-        <div className="container mx-auto px-4 relative">
+        <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection className="text-center mb-20">
             <Badge variant="outline" className="mb-6 px-5 py-2.5 border-primary/20 bg-primary/5">
               <span className="text-muted-foreground">How It Works</span>
@@ -253,13 +226,9 @@ export default function Landing() {
 
       {/* Benefits Section */}
       <section className="py-28 md:py-36 relative overflow-hidden">
-        <motion.div 
-          className="absolute top-1/2 left-0 w-[700px] h-[700px] -translate-y-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary/8 to-accent/8 blur-[150px]"
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
+        <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
         
-        <div className="container mx-auto px-4 relative">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
             <AnimatedSection direction="left">
               <Badge variant="outline" className="mb-6 px-5 py-2.5 border-primary/20 bg-primary/5">
@@ -342,10 +311,9 @@ export default function Landing() {
 
       {/* Use Cases Section */}
       <section className="py-28 md:py-36 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent" />
-        <div className="absolute inset-0 mesh-gradient opacity-30" />
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm" />
         
-        <div className="container mx-auto px-4 relative">
+        <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection className="text-center mb-20">
             <Badge variant="outline" className="mb-6 px-5 py-2.5 border-primary/20 bg-primary/5">
               <span className="text-muted-foreground">Use Cases</span>
@@ -399,14 +367,9 @@ export default function Landing() {
 
       {/* CTA Section */}
       <section className="py-28 md:py-36 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-background to-accent/3" />
-        <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-gradient-radial from-primary/8 to-transparent blur-[150px]"
-          animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.6, 0.4] }}
-          transition={{ duration: 10, repeat: Infinity }}
-        />
+        <div className="absolute inset-0 bg-background/30 backdrop-blur-[2px]" />
         
-        <div className="container mx-auto px-4 relative">
+        <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection>
             <Card variant="premium" className="max-w-4xl mx-auto text-center p-12 md:p-20 relative overflow-hidden">
               {/* Decorative elements */}
@@ -460,8 +423,8 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/30 py-16 relative bg-secondary/20">
-        <div className="container mx-auto px-4">
+      <footer className="border-t border-border/30 py-16 relative bg-background/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col items-center gap-8 text-center">
             <motion.div 
               className="flex items-center gap-3"
