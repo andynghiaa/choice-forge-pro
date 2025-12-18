@@ -595,10 +595,6 @@ export default function RoomDetail() {
                                 {candidate.ai_score}
                                 <span className="text-xs align-top ml-0.5">pts</span>
                               </div>
-                              <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-                                <Sparkles className="w-3 h-3" />
-                                View Reason
-                              </p>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent className="bg-background/80 backdrop-blur-xl border border-border/50">
@@ -716,7 +712,7 @@ export default function RoomDetail() {
                   <Sparkles className="w-4 h-4 text-primary" />
                   AI Reasoning
                 </h4>
-                <div className="bg-muted/50 rounded-lg p-4 text-sm leading-relaxed">
+                <div className="bg-black/40 rounded-lg p-4 text-sm leading-relaxed text-foreground">
                   {selectedAiCandidate?.ai_reasoning || 'No detailed reasoning available for this evaluation.'}
                 </div>
               </div>
