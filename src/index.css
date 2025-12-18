@@ -136,14 +136,6 @@
 
   html {
     scroll-behavior: smooth;
-    /* Keep scrollbar space reserved to avoid header/content shift when dialogs lock scroll */
-    overflow-y: scroll;
-    scrollbar-gutter: stable;
-  }
-
-  /* Radix scroll-lock adds padding-right; with a reserved gutter this causes a horizontal slide */
-  body[data-scroll-locked] {
-    padding-right: 0 !important;
   }
 
   body {

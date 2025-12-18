@@ -667,7 +667,11 @@ export default function RoomDetail() {
         )}
 
         {/* AI Score Modal */}
-        <Dialog open={!!selectedAiCandidate} onOpenChange={() => setSelectedAiCandidate(null)}>
+        <Dialog
+          open={!!selectedAiCandidate}
+          onOpenChange={() => setSelectedAiCandidate(null)}
+          modal={false}
+        >
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
