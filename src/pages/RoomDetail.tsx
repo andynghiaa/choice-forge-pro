@@ -596,13 +596,12 @@ export default function RoomDetail() {
                               <div className="relative">
                                 <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform duration-300">
                                   {candidate.ai_score}
-                                  <span className="text-xs align-top ml-0.5 opacity-70">pts</span>
                                 </div>
                               </div>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent className="bg-background/80 backdrop-blur-xl border border-border/50">
-                            Click to see the magic ✨
+                            Click to see AI reasoning
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
