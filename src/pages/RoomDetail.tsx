@@ -573,16 +573,19 @@ export default function RoomDetail() {
                       )}
                     </div>
                     {candidate.ai_score !== undefined && (
-                      <button
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setSelectedAiCandidate(candidate)}
-                        className="text-right p-2 -m-2 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer group"
+                        onKeyDown={(e) => e.key === 'Enter' && setSelectedAiCandidate(candidate)}
+                        className="text-right px-3 py-2 rounded-lg bg-primary/5 hover:bg-primary/15 transition-all cursor-pointer group border border-primary/20 hover:border-primary/40 relative z-10"
                       >
                         <div className="text-2xl font-display font-bold text-primary group-hover:scale-110 transition-transform">{candidate.ai_score}</div>
                         <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
                           <Sparkles className="w-3 h-3" />
                           AI Score
                         </p>
-                      </button>
+                      </div>
                     )}
                   </div>
                 </CardHeader>
