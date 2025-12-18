@@ -136,7 +136,15 @@
 
   html {
     scroll-behavior: smooth;
-    overflow-y: scroll;
+    /* Prevent layout shift when scroll locking (e.g., dialogs) */
+    scrollbar-gutter: stable;
+  }
+
+  /* If the browser supports stable gutter, Radix' scroll-lock padding compensation causes a shift */
+  @supports (scrollbar-gutter: stable) {
+    body[data-scroll-locked] {
+      padding-right: 0 !important;
+    }
   }
 
   body {
